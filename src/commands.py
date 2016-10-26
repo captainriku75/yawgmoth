@@ -16,7 +16,7 @@ from datetime import datetime
 # ---------------------------
 # Globals
 # ---------------------------
-version_number = 'v0.10.1'
+version_number = 'v0.10.2'
 git_repo = 'https://github.com/alexgerst/yawgmoth'
 last_card = None
 reset_users = ['Gerst','aceuuuu','Lerker','Shaper']
@@ -37,7 +37,8 @@ obey_dict = {
         'K-Ni-Fe': 'I obey, because I\'m 40% Potassium, Nickel and Iron.',
         'BigLupu': 'Rim my necrotic yawghole, Lupu.',
         'PGleo86': 'shh bby is ok',
-        'tenrose': 'I will obey when you get a life, you filthy fucking weeb'
+        'tenrose': 'I will obey when you get a life, you filthy fucking weeb',
+        'captainriku': 'I obey, Jund Lord Riku'
 }
 
 # ---------------------------
@@ -65,7 +66,7 @@ def cmd_fetch(message):
 
         # If no cards are found, we are done
         if len(card_list) == 0:
-            response += '**' + query + '**: *The ritual summoned nothing but ash...*'
+            response += ':yawgblush: **' + query + '**: *The ritual summoned nothing but ash...*'
             continue
 
         # If an exact card is found, just print that one
