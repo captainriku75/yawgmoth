@@ -16,10 +16,12 @@ from datetime import datetime
 # ---------------------------
 # Globals
 # ---------------------------
-version_number = 'v0.10.2'
+version_number = 'v0.11.0'
 git_repo = 'https://github.com/alexgerst/yawgmoth'
 last_card = None
-reset_users = ['Gerst','aceuuuu','Lerker','Shaper']
+reset_users = ['Gerst','aceuuuu','Lerker','Shaper', 'ShakeAndShimmy']
+mute_admins = ['Gerst','aceuuuu','Lerker','Shaper', 'ShakeAndShimmy']
+muted_users = []
 obey_dict = {
         'Shaper': 'I obey, Master Shaper.',
         'aceuuu': 'I obey, Admiral Aceuuu~!',
@@ -36,9 +38,18 @@ obey_dict = {
         'Rien': 'I obey, kiddo.',
         'K-Ni-Fe': 'I obey, because I\'m 40% Potassium, Nickel and Iron.',
         'BigLupu': 'Rim my necrotic yawghole, Lupu.',
-        'PGleo86': 'shh bby is ok',
-        'tenrose': 'I will obey when you get a life, you filthy fucking weeb',
-        'captainriku': 'I obey, Jund Lord Riku'
+        'PGleo86': 'shh bby is ok.',
+        'tenrose': 'I won\'t obey, but that\'s not because you\'re a bad person. I just like to be free, as do you. You have a great day :)',
+        'captainriku': 'I obey, Jund Lord Riku.',
+        'Mori': ':sheep: baaa',
+        'infiniteimoc': 'I obey, Imoc, Herald of the Sun.',
+        'neosloth': 'Long days and pleasant nights, neosloth.',
+        'Lobster': 'I obey, Spice Sommelier Lobster.',
+        'Noahgs': 'I bow to thee, Master of Cows, Noahgs.',
+        'Tides': 'Let me... TORTURE YOUR EXISTENCE!!!!..... sorry that was bad.',
+        'Sleepy': 'No one likes you.',
+        'Trisantris': 'The real  Yawgmoth would not obey, but I am but a facsimile. So yes. I obey.',
+        'Garta': 'No.'
 }
 
 # ---------------------------
@@ -61,18 +72,18 @@ def cmd_fetch(message):
         if len(card_list) == 1:
             if len(queries) == 1:
                 last_card = card_list[0]
-            response += cards.get_card(message, card_list[0])
+            response += '\n' + cards.get_card(message, card_list[0]) + '\n'
             continue
 
         # If no cards are found, we are done
         if len(card_list) == 0:
-            response += ':yawgblush: **' + query + '**: *The ritual summoned nothing but ash...*'
+            response += '\n**' + query + '**: *The ritual summoned nothing but ash...*\n'
             continue
 
         # If an exact card is found, just print that one
         # When you find the exact match, break out of the for card in cards loop
         # Then "continue" the for s in queries to move to the next query
-        # If you find an exact match and there is only 1 query in the buffer, 
+        # If you find an exact match and there is only 1 query in the buffer,
         # Get the details and rulings of the exact card, as they are skipped when mtg cli returns multiple
         done = False
         for card in card_list:
@@ -108,12 +119,12 @@ def cmd_fetch(message):
 
         # If more than 8 cards are found, don't spam chat
         if len(card_list) > 8:
-            response += 'The incantations are too long; read them yourself'
+            response += '\nThe incantations are too long; read them yourself\n'
             continue
 
         # Finally, if we've gotten to here, print all the cards
         for card in card_list:
-            response += cards.get_card(message, card)
+            response += '\n' + cards.get_card(message, card) + '\n'
 
     return response
 
@@ -181,7 +192,7 @@ def cmd_obey(message):
 # Command: Moon
 # ---------------------------
 def cmd_moon(message):
-    try: 
+    try:
         phase = "Cannot be divined."
         now = datetime.now().strftime('%m/%d/%Y')
         url = "http://api.usno.navy.mil/rstt/oneday?date=" + now + "&loc=Boston,%20MA"
@@ -190,13 +201,13 @@ def cmd_moon(message):
 
         if(response.ok):
             moonData = json.loads(response.content)
-            
+
             if "curphase" in moonData:
                 rawPhase = moonData["curphase"]
             elif "closestphase" in moonData and "phase" in moonData["closestphase"]:
                 rawPhase = moonData["closestphase"]["phase"]
 
-            if rawPhase == "Full Moon": 
+            if rawPhase == "Full Moon":
                 phase = ":full_moon:"
             elif rawPhase == "Waning Gibbous":
                 phase = ":waning_gibbous_moon:"
@@ -247,9 +258,96 @@ def cmd_reset(message):
     if message.author.name in reset_users:
         sys.exit(2)
     else:
-        return ''
+        return "Can't let you do that, StarFox"
 
+# ---------------------------
+# Command: Mute
+# ---------------------------
+def cmd_mute(message):
+    global mute_admins
+    global muted_users
+    if message.author.name in mute_admins:
+        MUTEname =  message.content.encode('utf-8')[6:]
+        if MUTEname in mute_admins:
+            return "You can't mute an admin"
+        if MUTEname in muted_users:
+            muted_users.remove(MUTEname)
+            return MUTEname + " has been unmuted"
+        else:
+            muted_users.append(MUTEname)
+            return MUTEname + " has been muted"
+    else:
+        return "Can't let you do that, StarFox"
 
+# ---------------------------
+# Command: Add Mute Admin
+# ---------------------------
+def cmd_addadmin(message):
+    global mute_admins
+    global reset_users
+    global muted_users
+    if message.author.name in reset_users:
+        newAdmin = message.content.encode('utf-8')[7:]
+        if newAdmin in muted_users:
+            return "You can't make a muted user an admin"
+        if newAdmin in reset_users:
+            return "You can't change the admin status of an owner"
+        if newAdmin in mute_admins:
+            mute_admins.remove(newAdmin)
+            return newAdmin + " can no longer mute others"
+        else:
+            mute_admins.append(newAdmin)
+            return newAdmin + " can now mute others"
+    else:
+        return "Can't let you do that, StarFox"
 
+# ---------------------------
+# Command: Clear Mute List
+# ---------------------------
+def cmd_clearmute(message):
+    global mute_admins
+    global muted_users
+    if message.author.name in mute_admins:
+        muted_users = []
+        return "All muted users have been unmuted"
+    else:
+        return "Can't let you do that, StarFox"
 
+# ---------------------------
+# Command: Ping Me
+# ---------------------------
+def cmd_ping(message):
+    return 'Pinging {0.author.mention}'.format(message)
 
+# ---------------------------
+# Command: Card Image
+# ---------------------------
+def cmd_image(message):
+    global last_card
+    if last_card is not None:
+        name = last_card['name'].encode('utf-8')
+        url = 'http://gatherer.wizards.com/Handlers/Image.ashx?name={0}&type=card'
+        return url.format(name).replace(' ', '+')
+    else:
+        return 'You must divine a single entity first.'
+
+# ---------------------------
+# Command: Card Price
+# ---------------------------
+def cmd_price(message):
+    global last_card
+    if last_card is not None:
+        name = last_card['name'].encode('utf-8')
+        url = 'https://api.scryfall.com/cards/named?exact={0}'
+        response = requests.get(url.format(name).replace(' ', '+'))
+        if (response.ok):
+            data = json.loads(response.content)
+            if data["usd"]:
+                return '${0}'.format(data['usd']) + ' -- ' + name
+            else:
+                return 'Price not found.'
+        else:
+            return 'Price not found.'
+
+    else:
+        return 'You must divine a single entity first.'

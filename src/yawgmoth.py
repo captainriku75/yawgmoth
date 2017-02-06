@@ -57,11 +57,25 @@ def on_message(message):
         response += ':yawgblush:'
     if message.content.startswith('!sheep'):
         response += ':sheep:'
+    if message.content.startswith('!mute'):
+        response += commands.cmd_mute(message)
+    if message.content.startswith('!admin'):
+        response += commands.cmd_addadmin(message)
+    if message.content.startswith('!clearmute'):
+        response += commands.cmd_clearmute(message)
+    if message.content.startswith('!pingme'):
+        response += commands.cmd_ping(message)
     if message.content.startswith('!rules'):
         response += 'http://media.wizards.com/2016/docs/MagicCompRules_04082016.pdf'
     if message.content.startswith('!reset'):
         response += commands.cmd_reset(message)
-    yawgmoth.send_message(message.channel, response)
+    if message.content.startswith('!image'):
+        response += commands.cmd_image(message)
+    if message.content.startswith('!price'):
+        response += commands.cmd_price(message)
+
+    if message.author.name not in commands.muted_users:
+        yawgmoth.send_message(message.channel, response)
 
 # ---------------------------
 # Startup
